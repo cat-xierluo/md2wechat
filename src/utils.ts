@@ -26,6 +26,59 @@ import * as postcss from "./postcss/postcss";
 let PluginVersion = "0.0.0";
 let PlugPlatform = "obsidian";
 
+const SVG_PLACEHOLDER_ATTR = "data-note-to-mp-svg-placeholder";
+
+function extractSvgBlocks(html: string) {
+	const svgMap = new Map<string, string>();
+	let index = 0;
+	const replaced = html.replace(/<svg[\s\S]*?<\/svg>/gi, (match) => {
+		const key = `svg-${index++}`;
+		svgMap.set(key, match);
+		return `<span ${SVG_PLACEHOLDER_ATTR}="${key}"></span>`;
+	});
+	return { html: replaced, svgMap };
+}
+
+function parseSvg(svg: string): SVGElement | null {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(svg, "image/svg+xml");
+	const root = doc.documentElement;
+	if (root && root.tagName.toLowerCase() === "svg") {
+		return root as SVGElement;
+	}
+	return null;
+}
+
+function restoreSvgBlocks(root: HTMLElement, svgMap: Map<string, string>) {
+	if (svgMap.size === 0) return;
+	const placeholders = root.querySelectorAll(`[${SVG_PLACEHOLDER_ATTR}]`);
+	for (const placeholder of placeholders) {
+		const key = placeholder.getAttribute(SVG_PLACEHOLDER_ATTR);
+		if (!key) continue;
+		const svg = svgMap.get(key);
+		if (!svg) {
+			placeholder.remove();
+			continue;
+		}
+		const svgEl = parseSvg(svg);
+		if (!svgEl) {
+			placeholder.remove();
+			continue;
+		}
+		placeholder.replaceWith(svgEl);
+	}
+}
+
+export function sanitizeHTMLToDomPreserveSVG(html: string) {
+	const extracted = extractSvgBlocks(html);
+	const doc = sanitizeHTMLToDom(extracted.html);
+	const root = doc.firstChild as HTMLElement | null;
+	if (root) {
+		restoreSvgBlocks(root, extracted.svgMap);
+	}
+	return doc;
+}
+
 export function setVersion(version: string) {
 	PluginVersion = version;
 	if (Platform.isWin) {
@@ -194,7 +247,7 @@ function applyStyle(root: HTMLElement, cssRoot: postcss.Root) {
 }
 
 export function applyCSS(html: string, css: string) {
-	const doc = sanitizeHTMLToDom(html);
+	const doc = sanitizeHTMLToDomPreserveSVG(html);
 	const root = doc.firstChild as HTMLElement;
 	const cssRoot = postcss.parse(css);
 	applyStyle(root, cssRoot);

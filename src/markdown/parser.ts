@@ -38,6 +38,7 @@ import { Topic } from "./topic";
 import { HeadingRenderer } from "./heading";
 import { FootnoteRenderer } from "./footnote";
 import { EmptyLineRenderer } from "./empty-line";
+import { RemoteSvgInline } from "./remote-svg";
 import { cleanUrl } from "../utils";
 
 
@@ -100,7 +101,163 @@ const customRenderer = {
 		}
     return out;
   }
+	,
+	link(href: string, title: string | null, text: string): string {
+		const cleanHref = cleanUrl(href);
+		if (cleanHref === null) {
+			return text;
+		}
+
+		const imgMatch = text.match(/^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/);
+		let body = text;
+		if (imgMatch) {
+			body = customRenderer.image(imgMatch[2], imgMatch[3] || null, imgMatch[1]);
+		}
+
+		let out = `<a href="${cleanHref}"`;
+		if (title) {
+			out += ` title="${title}"`;
+		}
+		out += `>${body}</a>`;
+		return out;
+	}
 };
+
+const SVG_PLACEHOLDER_ATTR = 'data-note-to-mp-inline-svg';
+
+function extractInlineSvg(content: string) {
+	const svgMap = new Map<string, string>();
+	const fenceRanges: Array<{ start: number; end: number }> = [];
+	let inFence = false;
+	let fenceStart = 0;
+	let offset = 0;
+	const lines = content.split('\n');
+	for (const line of lines) {
+		const lineStart = offset;
+		const lineEnd = offset + line.length;
+		const trimmed = line.trimStart();
+		if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) {
+			if (!inFence) {
+				inFence = true;
+				fenceStart = lineStart;
+			} else {
+				inFence = false;
+				fenceRanges.push({ start: fenceStart, end: lineEnd });
+			}
+		}
+		offset = lineEnd + 1;
+	}
+	if (inFence) {
+		fenceRanges.push({ start: fenceStart, end: content.length });
+	}
+
+	let cursor = 0;
+	let result = '';
+	const replaceSvg = (segment: string) =>
+		segment.replace(/<svg[\s\S]*?<\/svg>/gi, (match) => {
+			const key = `svg-${svgMap.size}`;
+			svgMap.set(key, match);
+			return `<span ${SVG_PLACEHOLDER_ATTR}="${key}"></span>`;
+		});
+
+	for (const range of fenceRanges) {
+		if (cursor < range.start) {
+			result += replaceSvg(content.slice(cursor, range.start));
+		}
+		result += content.slice(range.start, range.end);
+		cursor = range.end;
+	}
+	if (cursor < content.length) {
+		result += replaceSvg(content.slice(cursor));
+	}
+
+	return { content: result, svgMap };
+}
+
+function restoreInlineSvg(html: string, svgMap: Map<string, string>) {
+	if (svgMap.size === 0) return html;
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(`<section id="note-to-mp-svg-restore">${html}</section>`, "text/html");
+	const root = doc.getElementById("note-to-mp-svg-restore");
+	if (!root) return html;
+
+	const placeholders = root.querySelectorAll(`span[${SVG_PLACEHOLDER_ATTR}]`);
+	for (const placeholder of placeholders) {
+		const key = placeholder.getAttribute(SVG_PLACEHOLDER_ATTR);
+		if (!key) continue;
+		const svg = svgMap.get(key);
+		if (!svg) continue;
+		const svgDoc = parser.parseFromString(svg, "image/svg+xml");
+		const svgEl = svgDoc.documentElement;
+		if (svgEl && svgEl.tagName.toLowerCase() === "svg") {
+			placeholder.replaceWith(svgEl as unknown as Node);
+		}
+	}
+
+	return root.innerHTML;
+}
+
+function replaceLinkedImages(content: string) {
+	const fenceRanges: Array<{ start: number; end: number }> = [];
+	let inFence = false;
+	let fenceStart = 0;
+	let offset = 0;
+	const lines = content.split('\n');
+	for (const line of lines) {
+		const lineStart = offset;
+		const lineEnd = offset + line.length;
+		const trimmed = line.trimStart();
+		if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) {
+			if (!inFence) {
+				inFence = true;
+				fenceStart = lineStart;
+			} else {
+				inFence = false;
+				fenceRanges.push({ start: fenceStart, end: lineEnd });
+			}
+		}
+		offset = lineEnd + 1;
+	}
+	if (inFence) {
+		fenceRanges.push({ start: fenceStart, end: content.length });
+	}
+
+	const linkedImageRegex = /\[!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g;
+	const replaceSegment = (segment: string) =>
+		segment.replace(linkedImageRegex, (match, alt, imgSrc, imgTitle, linkHref, linkTitle) => {
+			const cleanImgSrc = cleanUrl(imgSrc);
+			const cleanLinkHref = cleanUrl(linkHref);
+			if (cleanImgSrc === null || cleanLinkHref === null) {
+				return match;
+			}
+			let imgTag = `<img src="${cleanImgSrc}" alt="${alt}"`;
+			if (imgTitle) {
+				imgTag += ` title="${imgTitle}"`;
+			}
+			imgTag += '>';
+
+			let anchor = `<a href="${cleanLinkHref}"`;
+			if (linkTitle) {
+				anchor += ` title="${linkTitle}"`;
+			}
+			anchor += `>${imgTag}</a>`;
+			return anchor;
+		});
+
+	let cursor = 0;
+	let result = '';
+	for (const range of fenceRanges) {
+		if (cursor < range.start) {
+			result += replaceSegment(content.slice(cursor, range.start));
+		}
+		result += content.slice(range.start, range.end);
+		cursor = range.end;
+	}
+	if (cursor < content.length) {
+		result += replaceSegment(content.slice(cursor));
+	}
+	return result;
+}
 
 export class MarkedParser {
 	extensions: Extension[] = [];
@@ -132,6 +289,7 @@ export class MarkedParser {
 		if (settings.isAuthKeyVaild()) {
 			this.extensions.push(new MathRenderer(app, settings, assetsManager, callback));
 		}
+		this.extensions.push(new RemoteSvgInline(app, settings, assetsManager, callback));
 	}
 
 	async buildMarked() {
@@ -160,8 +318,11 @@ export class MarkedParser {
 	async parse(content: string) {
 		if (!this.marked) await this.buildMarked();
 		await this.prepare();
-		let html = await this.marked.parse(content);	
+		const normalized = replaceLinkedImages(content);
+		const extracted = extractInlineSvg(normalized);
+		let html = await this.marked.parse(extracted.content);
 		html = await this.postprocess(html);
+		html = restoreInlineSvg(html, extracted.svgMap);
 		return html;
 	}
 }

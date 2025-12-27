@@ -21,7 +21,7 @@
  */
 
 import { App, ItemView, Workspace, Notice, sanitizeHTMLToDom, apiVersion, TFile, MarkdownRenderer, FrontMatterCache } from 'obsidian';
-import { applyCSS } from './utils';
+import { applyCSS, sanitizeHTMLToDomPreserveSVG } from './utils';
 import { UploadImageToWx } from './imagelib';
 import { NMPSettings } from './settings';
 import AssetsManager from './assets';
@@ -110,7 +110,7 @@ export class ArticleRender implements MDRendererCallback {
       className = this.currentTheme;
     }
     const html = `<section class="${className}" id="article-section">${article}</section>`;
-    const doc = sanitizeHTMLToDom(html);
+    const doc = sanitizeHTMLToDomPreserveSVG(html);
     if (doc.firstChild) {
       this.articleDiv.appendChild(doc.firstChild);
     }
@@ -611,7 +611,7 @@ export class ArticleRender implements MDRendererCallback {
   updateElementByID(id: string, html: string): void {
     const item = this.articleDiv.querySelector('#' + id) as HTMLElement;
     if (!item) return;
-    const doc = sanitizeHTMLToDom(html);
+    const doc = sanitizeHTMLToDomPreserveSVG(html);
     item.empty();
     if (doc.childElementCount > 0) {
       for (const child of doc.children) {

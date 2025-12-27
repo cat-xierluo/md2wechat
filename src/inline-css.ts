@@ -212,4 +212,14 @@ ul {
   height: 100%;
 }
 
+.note-remote-svg {
+  display: inline-block;
+}
+
+.note-remote-svg svg {
+  display: inline-block;
+  margin: 0;
+  vertical-align: middle;
+}
+
 `;

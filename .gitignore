@@ -22,3 +22,7 @@ data.json
 .DS_Store
 
 assets
+
+# Documentation and spec directories
+docs
+.specstory
