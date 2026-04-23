@@ -30,7 +30,7 @@ import { CodeRenderer } from "./code";
 import { EmbedBlockMark } from "./embed-block-mark";
 import { SVGIcon } from "./icons";
 import { LinkRenderer } from "./link";
-import { LocalFile, LocalImageManager } from "./local-file";
+import { LocalFile } from "./local-file";
 import { TextHighlight } from "./text-highlight";
 import { Comment } from "./commnet";
 import { Topic } from "./topic";
@@ -65,19 +65,6 @@ const customRenderer = {
     }
     href = cleanHref;
 
-		if (!href.startsWith('http')) {
-			const res = AssetsManager.getInstance().getResourcePath(decodeURI(href));
-			if (res) {
-				href = res.resUrl;
-				const info = {
-					resUrl: res.resUrl,
-					filePath: res.filePath,
-					media_id: null,
-					url: null
-				};
-				LocalImageManager.getInstance().setImage(res.resUrl, info);	
-			}
-		}
 		let out = '';
 		if (NMPSettings.getInstance().useFigcaption) {
 			out = `<figure style="display: flex; flex-direction: column; align-items: center;"><img src="${href}" alt="${text}"`;

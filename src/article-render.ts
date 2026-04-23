@@ -27,7 +27,7 @@ import AssetsManager from './assets';
 import InlineCSS from './inline-css';
 import { MDRendererCallback } from './markdown/extension';
 import { MarkedParser } from './markdown/parser';
-import { LocalImageManager, LocalFile } from './markdown/local-file';
+import { LocalFile } from './markdown/local-file';
 import { CardDataManager } from './markdown/code';
 import { debounce } from './utils';
 import { toPng } from 'html-to-image';
@@ -274,9 +274,7 @@ export class ArticleRender implements MDRendererCallback {
   }
 
   async exportHTML() {
-    await this.cachedElementsToImages();
-    const lm = LocalImageManager.getInstance();
-    const content = await lm.embleImages(this.articleDiv, this.app.vault);
+    const content = this.articleDiv.innerHTML;
     const globalStyle = await this.assetsManager.getStyle();
     const html = applyCSS(content, this.getCSS() + globalStyle);
     const blob = new Blob([html], { type: 'text/html' });
