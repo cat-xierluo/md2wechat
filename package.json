@@ -1,5 +1,5 @@
 {
-	"name": "md2wechat",
+	"name": "md2Wechat",
 	"version": "1.4.0",
 	"description": "A plugin for Obsidian to copy notes to WeChat MP editor with preserved styles",
 	"main": "main.js",

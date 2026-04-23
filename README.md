@@ -1,4 +1,4 @@
-# md2wechat
+# md2Wechat
 
 一个 Obsidian 插件，用于将笔记复制到微信公众号编辑器，同时保留样式。
 
@@ -14,8 +14,8 @@
 ## 安装
 
 1. **关闭 Obsidian 安全模式**：设置 → 第三方插件 → 关闭安全模式
-2. **复制插件文件夹**到 `.obsidian/plugins/md2wechat/`
-3. **下载主题资源**（可选）：将 CSS 文件放到 `.obsidian/plugins/md2wechat/assets/themes/` 目录
+2. **复制插件文件夹**到 `.obsidian/plugins/md2Wechat/`
+3. **下载主题资源**（可选）：将 CSS 文件放到 `.obsidian/plugins/md2Wechat/assets/themes/` 目录
 
 ## 使用
 
@@ -27,7 +27,7 @@
 ## 目录结构
 
 ```
-.obsidian/plugins/md2wechat/
+.obsidian/plugins/md2Wechat/
 ├── assets/
 │   └── themes/          # 主题目录，放入 CSS 文件即可自动加载
 │       ├── my-theme.css
