@@ -1,6 +1,6 @@
 {
-	"id": "md2Wechat",
-	"name": "md2Wechat",
+	"id": "md2wechat",
+	"name": "md2wechat",
 	"version": "1.4.0",
 	"minAppVersion": "1.4.5",
 	"description": "Copy notes to WeChat MP editor with preserved styles, support code highlighting and SVG rendering.",

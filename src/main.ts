@@ -26,7 +26,6 @@ import { NMPSettings } from './settings';
 import { NoteToMpSettingTab } from './setting-tab';
 import AssetsManager from './assets';
 import { setVersion, uevent } from './utils';
-import { WidgetsModal } from './widgets-modal';
 
 
 export default class NoteToMpPlugin extends Plugin {
@@ -56,62 +55,20 @@ export default class NoteToMpPlugin extends Plugin {
 			(leaf) => new NotePreview(leaf, this)
 		);
 
-		const ribbonIconEl = this.addRibbonIcon('clipboard-paste', '复制到公众号', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('clipboard-paste', 'md2wechat', (evt: MouseEvent) => {
 			this.activateView();
 		});
 		ribbonIconEl.addClass('note-to-mp-plugin-ribbon-class');
 
 		this.addCommand({
 			id: 'note-to-mp-preview',
-			name: '复制到公众号',
+			name: 'md2wechat',
 			callback: () => {
 				this.activateView();
 			}
 		});
 
 		this.addSettingTab(new NoteToMpSettingTab(this.app, this));
-
-		this.addCommand({
-			id: 'note-to-mp-widget',
-			name: '插入样式小部件',
-			callback: () => {
-				new WidgetsModal(this.app).open();
-			}
-		});
-
-		this.addCommand({
-			id: 'note-to-mp-pub',
-			name: '发布公众号文章',
-			callback: async () => {
-				await this.activateView();
-				this.getNotePreview()?.postArticle();
-			}
-		});
-
-		// 监听右键菜单
-    this.registerEvent(
-      this.app.workspace.on('file-menu', (menu, file) => {
-        menu.addItem((item) => {
-          item
-            .setTitle('发布到公众号')
-            .setIcon('lucide-send')
-            .onClick(async () => {
-              if (file instanceof TFile) {
-								if (file.extension.toLowerCase() !== 'md') {
-									new Notice('只能发布 Markdown 文件');
-									return;
-								}
-								await this.activateView();
-								await this.getNotePreview()?.renderMarkdown(file);
-								await this.getNotePreview()?.postArticle();
-              } else if (file instanceof TFolder) {
-								await this.activateView();
-								await this.getNotePreview()?.batchPost(file);
-              }
-            });
-        });
-      })
-    );
 	}
 
 	onunload() {
