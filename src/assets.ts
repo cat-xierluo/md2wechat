@@ -284,7 +284,7 @@ export default class AssetsManager {
 
     getThemeURL() {
         const version = this.manifest.version;
-        return `https://github.com/cat-xierluo/md2Wechat/releases/download/${version}/assets.zip`;
+        return `https://github.com/cat-xierluo/md2wechat/releases/download/${version}/assets.zip`;
     }
 
     async getStyle() {

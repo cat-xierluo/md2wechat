@@ -158,7 +158,7 @@ export class ArticleRender implements MDRendererCallback {
 
   errorContent(error: any) {
     return '<h1>渲染失败!</h1><br/>'
-      + '如需帮助请前往&nbsp;&nbsp;<a href="https://github.com/cat-xierluo/md2Wechat/issues">https://github.com/cat-xierluo/md2Wechat/issues</a>&nbsp;&nbsp;反馈<br/><br/>'
+      + '如需帮助请前往&nbsp;&nbsp;<a href="https://github.com/cat-xierluo/md2wechat/issues">https://github.com/cat-xierluo/md2wechat/issues</a>&nbsp;&nbsp;反馈<br/><br/>'
       + '如果方便，请提供引发错误的完整Markdown内容。<br/><br/>'
       + '<br/>Obsidian版本：' + apiVersion
       + '<br/>错误信息：<br/>'
