@@ -1,7 +1,7 @@
 {
 	"id": "md2wechat",
 	"name": "md2wechat",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"minAppVersion": "1.4.5",
 	"description": "将笔记复制到微信公众号编辑器，支持代码高亮、动态SVG渲染和主题自定义。",
 	"author": "cat-xierluo",
