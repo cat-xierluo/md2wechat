@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-import { App, PluginSettingTab, Setting, sanitizeHTMLToDom } from 'obsidian';
+import { App, PluginSettingTab, Setting } from 'obsidian';
 import NoteToMpPlugin from './main';
 import { NMPSettings } from './settings';
 
@@ -38,11 +38,6 @@ export class NoteToMpSettingTab extends PluginSettingTab {
 		const {containerEl} = this;
 
 		containerEl.empty();
-
-		const helpEl = containerEl.createEl('div');
-		helpEl.style.cssText = 'display: flex;flex-direction: row;align-items: center;';
-		helpEl.createEl('h2', {text: '帮助文档'}).style.cssText = 'margin-right: 10px;';
-		helpEl.createEl('a', {text: 'https://sunboshi.tech/doc', attr: {href: 'https://sunboshi.tech/doc'}});
 
 		containerEl.createEl('h2', {text: '插件设置'});
 
@@ -140,45 +135,6 @@ export class NoteToMpSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName('Excalidraw 渲染为 PNG 图片')
-			.addToggle(toggle => {
-				toggle.setValue(this.settings.excalidrawToPNG);
-				toggle.onChange(async (value) => {
-					this.settings.excalidrawToPNG = value;
-					await this.plugin.saveSettings();
-				});
-			})
-
-		new Setting(containerEl)
-			.setName('水印图片')
-			.addText(text => {
-			    text.setPlaceholder('请输入图片名称')
-					.setValue(this.settings.watermark)
-					.onChange(async (value) => {
-					  this.settings.watermark = value.trim();
-						await this.plugin.saveSettings();
-					})
-					.inputEl.setAttr('style', 'width: 320px;')
-			})
-
-		new Setting(containerEl)
-			.setName('获取更多主题')
-			.addButton(button => {
-			    button.setButtonText('下载');
-				button.onClick(async () => {
-					button.setButtonText('下载中...');
-					await this.plugin.assetsManager.downloadThemes();
-					button.setButtonText('下载完成');
-				});
-			})
-			.addButton(button => {
-				button.setIcon('folder-open');
-				button.onClick(async () => {
-					await this.plugin.assetsManager.openAssets();
-				});
-			});
-
-		new Setting(containerEl)
 			.setName('清空主题')
 			.addButton(button => {
 			    button.setButtonText('清空');
@@ -188,48 +144,5 @@ export class NoteToMpSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				});
 			})
-
-		new Setting(containerEl)
-			.setName('全局CSS属性')
-			.setDesc('只能填写CSS属性，不能写选择器')
-			.addTextArea(text => {
-			    text.setPlaceholder('请输入CSS属性，如：background: #fff;padding: 10px;')
-				    .setValue(this.settings.baseCSS)
-					.onChange(async (value) => {
-					    this.settings.baseCSS = value;
-						await this.plugin.saveSettings();
-					})
-				    .inputEl.setAttr('style', 'width: 520px; height: 60px;');
-		})
-
-		const customCSSDoc = '使用指南：<a href="https://sunboshi.tech/customcss">https://sunboshi.tech/customcss</a>';
-		new Setting(containerEl)
-			.setName('自定义CSS笔记')
-			.setDesc(sanitizeHTMLToDom(customCSSDoc))
-			.addText(text => {
-				text.setPlaceholder('请输入自定义CSS笔记标题')
-				.setValue(this.settings.customCSSNote)
-				.onChange(async (value) => {
-					this.settings.customCSSNote = value.trim();
-					await this.plugin.saveSettings();
-					await this.plugin.assetsManager.loadCustomCSS();
-				})
-				.inputEl.setAttr('style', 'width: 320px;')
-		});
-
-		const expertDoc = '使用指南：<a href="https://sunboshi.tech/expert">https://sunboshi.tech/expert</a>';
-		new Setting(containerEl)
-			.setName('专家设置笔记')
-			.setDesc(sanitizeHTMLToDom(expertDoc))
-			.addText(text => {
-				text.setPlaceholder('请输入专家设置笔记标题')
-				.setValue(this.settings.expertSettingsNote)
-				.onChange(async (value) => {
-					this.settings.expertSettingsNote = value.trim();
-					await this.plugin.saveSettings();
-					await this.plugin.assetsManager.loadExpertSettings();
-				})
-				.inputEl.setAttr('style', 'width: 320px;')
-		});
 	}
 }
