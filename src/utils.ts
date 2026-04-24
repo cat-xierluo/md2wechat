@@ -254,11 +254,9 @@ export function applyCSS(html: string, css: string) {
 	return root.outerHTML;
 }
 
+// 遥测已禁用
 export function uevent(name: string) {
-	const url = `https://u.sunboshi.tech/event?name=${name}&platform=${PlugPlatform}&v=${PluginVersion}`;
-	requestUrl(url).then().catch(error => {
-		console.error("Failed to send event: " + url, error);
-	});
+	// 不再向外部服务器发送遥测数据
 }
 
 /**
