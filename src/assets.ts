@@ -23,7 +23,7 @@
 import { App, PluginManifest, Notice, requestUrl, FileSystemAdapter, TAbstractFile, TFile, TFolder } from "obsidian";
 import * as zip from "@zip.js/zip.js";
 import DefaultTheme from "./default-theme";
-import { BuiltInHighlights } from "./built-in-highlights";
+import { CDNHighlights, DefaultHighlightCSS } from "./built-in-highlights";
 import { NMPSettings } from "./settings";
 import { ExpertSettings, defaultExpertSettings, expertSettingsFromString } from "./expert-settings";
 
@@ -212,10 +212,18 @@ export default class AssetsManager {
 
     async loadHighlights() {
         try {
-            // 使用内置高亮主题，不再需要下载
-            this.highlights = BuiltInHighlights.map(h => ({ name: h.name, url: '', css: h.css }));
+            // 添加默认高亮（内置 CSS，不依赖网络）
+            this.highlights = [{ name: '默认', url: '', css: DefaultHighlightCSS }];
 
-            // 如果用户有自定义高亮主题文件，也加载它们
+            // 从 CDN 加载其他高亮主题
+            for (const [name, url] of Object.entries(CDNHighlights)) {
+                const css = await this.fetchHighlightCSS(name, url);
+                if (css) {
+                    this.highlights.push({ name, url, css });
+                }
+            }
+
+            // 如果用户有本地高亮主题文件，也加载它们（覆盖 CDN 版本）
             if (await this.app.vault.adapter.exists(this.hilightCfg)) {
                 const data = await this.app.vault.adapter.read(this.hilightCfg);
                 if (data) {
@@ -224,7 +232,13 @@ export default class AssetsManager {
                         const cssFile = this.hilightPath + item.name + '.css';
                         if (await this.app.vault.adapter.exists(cssFile)) {
                             const cssContent = await this.app.vault.adapter.read(cssFile);
-                            this.highlights.push({ name: item.name, url: item.url, css: cssContent });
+                            // 替换已有或添加新的
+                            const existing = this.highlights.find(h => h.name === item.name);
+                            if (existing) {
+                                existing.css = cssContent;
+                            } else {
+                                this.highlights.push({ name: item.name, url: item.url, css: cssContent });
+                            }
                         }
                     }
                 }
@@ -233,6 +247,32 @@ export default class AssetsManager {
         catch (error) {
             console.error(error);
         }
+    }
+
+    private async fetchHighlightCSS(name: string, url: string): Promise<string | null> {
+        // 先尝试从本地缓存读取
+        const cacheFile = this.hilightPath + name + '.css';
+        if (await this.app.vault.adapter.exists(cacheFile)) {
+            try {
+                return await this.app.vault.adapter.read(cacheFile);
+            } catch (e) {
+                console.warn(`读取高亮缓存失败: ${name}`);
+            }
+        }
+
+        // 从 CDN 获取
+        try {
+            const response = await requestUrl(url);
+            const css = response.text;
+            // 缓存到本地
+            if (css && !css.includes('404')) {
+                await this.app.vault.adapter.write(cacheFile, css);
+                return css;
+            }
+        } catch (e) {
+            console.warn(`从 CDN 获取高亮失败: ${name}`, e);
+        }
+        return null;
     }
 
     async loadIcon(name: string) {

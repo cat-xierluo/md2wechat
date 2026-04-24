@@ -20,8 +20,22 @@
  * THE SOFTWARE.
  */
 
-// 默认 XCode 风格
-export const HighlightXCode = `
+// 内置高亮主题配置（CSS 从 CDN 动态加载）
+export const BuiltInHighlightsConfig = [
+  { name: '默认', url: '' },
+  { name: 'Monokai', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/monokai.css' },
+  { name: 'GitHub', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.css' },
+  { name: 'Dracula', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/dracula.css' },
+  { name: 'OneDark', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.css' },
+  { name: 'NightOwl', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/night-owl.css' },
+  { name: 'Nord', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/nord.css' },
+  { name: 'SolarizedDark', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/solarized-dark.css' },
+  { name: 'TokyoNight', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/tokyo-night-dark.css' },
+  { name: 'VS2015', url: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/vs2015.css' },
+];
+
+// 默认 XCode 风格（内置，不依赖 CDN）
+export const DefaultHighlightCSS = `
 pre code.hljs {
   display: block;
 }
@@ -103,243 +117,15 @@ pre code.hljs {
 }
 `;
 
-// Monokai 风格
-export const HighlightMonokai = `
-.hljs {
-  background: #272822;
-  color: #f8f8f2;
-}
-.hljs-tag,
-.hljs-literal,
-.hljs-name {
-  color: #f92672;
-}
-.hljs-attribute,
-.hljs-symbol,
-.hljs-params {
-  color: #fd971f;
-}
-.hljs-keyword,
-.hljs-selector-tag,
-.hljs-string {
-  color: #a6e22e;
-}
-.hljs-title,
-.hljs-section {
-  color: #a6e22e;
-  font-weight: bold;
-}
-.hljs-comment,
-.hljs-quote {
-  color: #75715e;
-}
-.hljs-number,
-.hljs-regexp,
-.hljs-type,
-.hljs-built_in {
-  color: #ae81ff;
-}
-.hljs-variable,
-.hljs-template-variable {
-  color: #f8f8f2;
-}
-.hljs-meta {
-  color: #66d9ef;
-}
-.hljs-deletion {
-  background: #493a3a;
-}
-.hljs-addition {
-  background: #3d3a33;
-}
-.hljs-emphasis {
-  font-style: italic;
-}
-.hljs-strong {
-  font-weight: bold;
-}
-`;
-
-// GitHub 风格
-export const HighlightGitHub = `
-.hljs {
-  background: #f6f8fa;
-  color: #24292e;
-}
-.hljs-comment,
-.hljs-quote {
-  color: #6a737d;
-}
-.hljs-keyword,
-.hljs-selector-tag {
-  color: #d73a49;
-}
-.hljs-string,
-.hljs-doctag {
-  color: #032f62;
-}
-.hljs-number,
-.hljs-regexp,
-.hljs-literal {
-  color: #005cc5;
-}
-.hljs-variable,
-.hljs-template-variable {
-  color: #e36209;
-}
-.hljs-tag .hljs-attr {
-  color: #22863a;
-}
-.hljs-title,
-.hljs-section {
-  color: #6f42c1;
-  font-weight: bold;
-}
-.hljs-type,
-.hljs-class .hljs-title {
-  color: #005cc5;
-}
-.hljs-tag,
-.hljs-name {
-  color: #22863a;
-}
-.hljs-attribute {
-  color: #6f42c1;
-}
-.hljs-meta {
-  color: #6a737d;
-}
-.hljs-deletion {
-  background: #ffeef0;
-}
-.hljs-addition {
-  background: #f0fff4;
-}
-.hljs-emphasis {
-  font-style: italic;
-}
-.hljs-strong {
-  font-weight: bold;
-}
-`;
-
-// Dracula 风格
-export const HighlightDracula = `
-.hljs {
-  background: #282a36;
-  color: #f8f8f2;
-}
-.hljs-comment,
-.hljs-quote {
-  color: #6272a4;
-}
-.hljs-variable,
-.hljs-template-variable,
-.hljs-tag,
-.hljs-name {
-  color: #ff79c6;
-}
-.hljs-keyword,
-.hljs-symbol,
-.hljs-type {
-  color: #8be9fd;
-}
-.hljs-number,
-.hljs-literal {
-  color: #bd93f9;
-}
-.hljs-title,
-.hljs-section {
-  color: #50fa7b;
-}
-.hljs-doctag,
-.hljs-string {
-  color: #f1fa8c;
-}
-.hljs-meta {
-  color: #ff79c6;
-}
-.hljs-deletion {
-  background: #6272a4;
-}
-.hljs-addition {
-  background: #44475a;
-}
-.hljs-emphasis {
-  font-style: italic;
-}
-.hljs-strong {
-  font-weight: bold;
-}
-`;
-
-// One Dark 风格
-export const HighlightOneDark = `
-.hljs {
-  background: #282c34;
-  color: #abb2bf;
-}
-.hljs-comment,
-.hljs-quote {
-  color: #5c6370;
-  font-style: italic;
-}
-.hljs-keyword,
-.hljs-selector-tag {
-  color: #c678dd;
-}
-.hljs-string,
-.hljs-doctag {
-  color: #98c379;
-}
-.hljs-number,
-.hljs-literal {
-  color: #d19a66;
-}
-.hljs-variable,
-.hljs-template-variable {
-  color: #e06c75;
-}
-.hljs-tag .hljs-attr {
-  color: #d19a66;
-}
-.hljs-title,
-.hljs-section {
-  color: #e06c75;
-  font-weight: bold;
-}
-.hljs-type,
-.hljs-class {
-  color: #e5c07b;
-}
-.hljs-tag,
-.hljs-name {
-  color: #e06c75;
-}
-.hljs-attribute {
-  color: #d19a66;
-}
-.hljs-meta {
-  color: #61afef;
-}
-.hljs-deletion {
-  background: #3e4451;
-}
-.hljs-addition {
-  background: #3e4451;
-}
-.hljs-emphasis {
-  font-style: italic;
-}
-.hljs-strong {
-  font-weight: bold;
-}
-`;
-
-export const BuiltInHighlights = [
-  { name: '默认', css: HighlightXCode },
-  { name: 'Monokai', css: HighlightMonokai },
-  { name: 'GitHub', css: HighlightGitHub },
-  { name: 'Dracula', css: HighlightDracula },
-  { name: 'OneDark', css: HighlightOneDark },
-];
+// 其他需要从 CDN 获取的高亮样式
+export const CDNHighlights = {
+  'Monokai': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/monokai.css',
+  'GitHub': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.css',
+  'Dracula': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/dracula.css',
+  'OneDark': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.css',
+  'NightOwl': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/night-owl.css',
+  'Nord': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/nord.css',
+  'SolarizedDark': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/solarized-dark.css',
+  'TokyoNight': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/tokyo-night-dark.css',
+  'VS2015': 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/vs2015.css',
+};
