@@ -246,11 +246,12 @@ function applyStyle(root: HTMLElement, cssRoot: postcss.Root) {
 	}
 }
 
-export function applyCSS(html: string, css: string) {
+export function applyCSS(html: string, css: string, transform?: (root: HTMLElement) => void) {
 	const doc = sanitizeHTMLToDomPreserveSVG(html);
 	const root = doc.firstChild as HTMLElement;
 	const cssRoot = postcss.parse(css);
 	applyStyle(root, cssRoot);
+	transform?.(root);
 	return root.outerHTML;
 }
 

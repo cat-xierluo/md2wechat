@@ -29,6 +29,7 @@ import { MDRendererCallback } from './markdown/extension';
 import { MarkedParser } from './markdown/parser';
 import { LocalFile } from './markdown/local-file';
 import { CardDataManager } from './markdown/code';
+import { formatClipboardCodeBlocks } from './markdown/clipboard-code';
 import { debounce } from './utils';
 import { toPng } from 'html-to-image';
 
@@ -144,7 +145,7 @@ export class ArticleRender implements MDRendererCallback {
 
   getArticleContent() {
     const content = this.articleDiv.innerHTML;
-    let html = applyCSS(content, this.getCSS());
+    let html = applyCSS(content, this.getCSS(), formatClipboardCodeBlocks);
     // 处理话题多余内容
     html = html.replace(/rel="noopener nofollow"/g, '');
     html = html.replace(/target="_blank"/g, '');
